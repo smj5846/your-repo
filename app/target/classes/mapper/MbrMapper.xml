@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aianalysis.common.mapper.MbrMapper">
+	<sql id="searchMember">
+	  AND
+	  <if test="grade != null and grade != ''">
+	    grade = #{grade}
+	  </if>
+	  <if test="searchkey != null and searchkey == 'email' and keyword != null and keyword != ''">
+	    AND AI_MEMBER.email LIKE CONCAT('%', #{keyword}, '%')
+	  </if>
+	  <if test="searchkey != null and searchkey == 'name' and keyword != null and keyword != ''">
+	    AND AI_MEMBER.name LIKE CONCAT('%', #{keyword}, '%')
+	  </if>
+	  <if test="searchkey != null and searchkey == 'phone' and keyword != null and keyword != ''">
+	    AND AI_MEMBER.phone LIKE CONCAT('%', #{keyword}, '%')
+	  </if>
+	  <if test="(searchkey == null or searchkey == '') and keyword != null and keyword != ''">
+	    AND (
+	      AI_MEMBER.email LIKE CONCAT('%', #{keyword}, '%')
+	      OR 
+	      AI_MEMBER.name LIKE CONCAT('%', #{keyword}, '%')
+	      OR
+	      AI_MEMBER.phone LIKE CONCAT('%', #{keyword}, '%')
+	    )
+	  </if>
+	</sql>
+	<select id="selectMbrgetList" resultType="com.aianalysis.common.model.MbrVO">
+		<![CDATA[ 
+			SELECT * FROM AI_MEMBER WHERE email=#{email} ORDER BY reg_dt DESC
+		]]>
+	</select>
+	<select id="selectMbrList" resultType="com.aianalysis.common.model.MbrVO">
+		<![CDATA[ 
+			SELECT * FROM AI_MEMBER WHERE 1=1
+		]]>
+		<include refid='searchMember' />
+		<![CDATA[ 
+			ORDER BY reg_dt DESC
+		]]>
+	</select>
+	<select id="selectMbrPageList" resultType="com.aianalysis.common.model.MbrVO">
+		<![CDATA[ 
+			SELECT * FROM AI_MEMBER WHERE 1=1
+		]]>
+		<include refid='searchMember' />
+		<![CDATA[ 
+			ORDER BY reg_dt DESC LIMIT #{indexOfFirstItem},#{itemsPerPage}
+		]]>
+	</select>
+	
+	<select id="selectMbrByLgn" resultType="com.aianalysis.common.model.MbrVO">
+		<![CDATA[ 
+			SELECT * FROM AI_MEMBER WHERE email = #{email} AND password = #{password} AND grade = #{grade}
+		]]>
+	</select>
+	<insert id="insertMbr">
+		INSERT INTO AI_MEMBER (email, password, phone, zip, address1,  address2, grade, reg_dt, upt_dt, name)
+		VALUES (#{email}, #{password}, #{phone}, #{zip}, #{address1},  #{address2}, #{grade}, #{regDt}, #{uptDt},#{name})
+
+	</insert>
+	<update id="mbrUpdate">
+		UPDATE AI_MEMBER SET password =  COALESCE(#{password}, password), phone = #{phone}, zip =  #{zip}, address1 =  #{address1},address2 = #{address2}, upt_Dt = #{uptDt},name = #{name}
+		WHERE email = #{email}
+	</update>
+	<delete id="mbrDelete">
+		DELETE FROM AI_MEMBER WHERE email = #{email}
+	</delete>
+</mapper>

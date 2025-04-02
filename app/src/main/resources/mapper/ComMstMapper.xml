@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aianalysis.common.mapper.ComMstMapper">
+	<select id="selectByMstCd" resultType="com.aianalysis.common.model.ComMstVO">
+		SELECT * FROM AI_COM_MST WHERE mst_cd = #{mstCd} LIMIT 1
+	</select>
+	<select id="selectAllMstCd" resultType="com.aianalysis.common.model.ComMstVO">
+		SELECT * FROM AI_COM_MST ORDER BY mst_cd
+	</select>
+	<insert id="insertMst">
+		INSERT INTO AI_COM_MST VALUES (#{mstCd}, #{mstNm}, #{dsctn})
+	</insert>
+	<sql id="searchMst">
+	  AND
+	  <choose>
+	    <when test="searchKey == 'mst_cd'">
+	      mst_cd LIKE CONCAT('%', #{keyword}, '%') ORDER BY mst_cd ASC
+	    </when>
+	    <when test="searchKey == 'mst_nm'">
+	      mst_nm LIKE CONCAT('%', #{keyword}, '%') ORDER BY mst_nm ASC
+	    </when>
+	    <when test="searchKey == ''">
+	      mst_cd LIKE CONCAT('%', #{keyword}, '%')
+	      OR 
+	      mst_nm LIKE CONCAT('%', #{keyword}, '%')
+	    </when>
+	    <otherwise>
+	      1 = 0
+	    </otherwise>
+	  </choose>
+	</sql>
+	<select id="selectMstList" resultType="com.aianalysis.common.model.ComMstVO">
+		<![CDATA[
+			SELECT * FROM AI_COM_MST WHERE 1 = 1
+		]]>
+			<include refid="searchMst" />
+		<![CDATA[
+			LIMIT #{start}, #{scale}
+		]]>
+	</select>
+	<delete id="deleteMst">
+		DELETE FROM AI_COM_MST WHERE mst_cd = #{mstCd}
+	</delete>
+	<update id="updateMst">
+		UPDATE AI_COM_MST SET mst_nm = #{mstNm}, dsctn = #{dsctn} 
+		WHERE mst_cd = #{mstCd} 
+	</update>
+</mapper>
